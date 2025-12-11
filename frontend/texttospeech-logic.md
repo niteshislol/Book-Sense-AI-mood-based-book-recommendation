@@ -1,5 +1,3 @@
-# **text to speech logic**
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

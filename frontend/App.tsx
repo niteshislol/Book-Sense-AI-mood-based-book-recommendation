@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import BookGrid from './components/BookGrid';
 import TopBooks from './components/TopBooks';
 import MoodDetector from './components/MoodDetector';
+import BookModal from './components/BookModal'; // Import Modal
 import { Page, Book, MoodResult } from './types';
 import { searchBooks } from './services/api';
 import { MOOD_GENRE_MAP } from './constants';
@@ -13,6 +14,7 @@ function App() {
   const [recommendations, setRecommendations] = useState<Book[]>([]);
   const [searchTitle, setSearchTitle] = useState("Your Recommendations");
   const [searchSubtitle, setSearchSubtitle] = useState("");
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null); // Modal State
 
   // Theme State
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -32,12 +34,11 @@ function App() {
 
   const handleSearch = async (query: string) => {
     // Keep page as home but set recommendations to populate results below
-    setPage('home'); // Or keep it 'recommendations' if we want to highlight nav, but user wants "same page" feel
+    setPage('home');
     setSearchTitle(`Results for "${query}"`);
     setSearchSubtitle("Searching the literary universe...");
-    setRecommendations([]); // Clear previous
+    setRecommendations([]);
 
-    // If not already on home/recommendations, switch to home
     if (page !== 'home' && page !== 'recommendations') setPage('home');
 
     const results = await searchBooks(query);
@@ -54,7 +55,6 @@ function App() {
   };
 
   const handleMoodResults = async (moodData?: MoodResult) => {
-    // Similar logic for mood
     setPage('home');
     if (moodData) {
       setSearchTitle(`Mood: ${moodData.mood}`);
@@ -64,7 +64,6 @@ function App() {
       const results = await searchBooks(genres[0] || "");
       setRecommendations(results);
 
-      // Scroll to results
       setTimeout(() => {
         const resultsElement = document.getElementById('results-section');
         if (resultsElement) {
@@ -80,7 +79,7 @@ function App() {
       <Navbar currentPage={page} setPage={setPage} theme={theme} toggleTheme={toggleTheme} />
 
       <main>
-        {/* Always show Hero on Home or if we have recommendations (which acts as an extension of Home) */}
+        {/* Always show Hero on Home or if we have recommendations */}
         {(page === 'home' || page === 'recommendations') && (
           <Hero onSearch={handleSearch} />
         )}
@@ -95,13 +94,14 @@ function App() {
           </div>
         )}
 
-        {/* Show Results Section below Hero if we have recommendations or explicitly on recommendations page */}
+        {/* Show Results Section below Hero */}
         {(page === 'home' || page === 'recommendations') && recommendations.length > 0 && (
           <div id="results-section">
             <BookGrid
               title={searchTitle}
               subtitle={searchSubtitle}
               books={recommendations}
+              onBookClick={setSelectedBook} // Pass click handler
             />
           </div>
         )}
@@ -115,13 +115,21 @@ function App() {
         )}
       </main>
 
+      {/* Book Modal */}
+      <BookModal
+        book={selectedBook}
+        onClose={() => setSelectedBook(null)}
+      />
+
       {/* Footer */}
       <footer className="py-8 text-center text-gray-500 dark:text-gray-600 text-sm border-t border-gray-200 dark:border-white/5 mt-auto">
-        <p>© {new Date().getFullYear()} BookSense AI. Powered by Google Gemini.</p>
+        <p>© {new Date().getFullYear()} BookSense AI. Made by Innovators</p>
       </footer>
 
     </div>
   );
 }
+
+
 
 export default App;

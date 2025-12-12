@@ -23,7 +23,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onClick }) =
         />
         <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1">
           <span className="text-yellow-400 text-xs">★</span>
-          <span className="text-white text-xs font-bold">{book.rating}</span>
+          <span className="text-white text-xs font-bold">
+            {typeof book.rating === 'number' ? book.rating.toFixed(1) : book.rating}
+          </span>
         </div>
 
         {/* Genre Badge */}

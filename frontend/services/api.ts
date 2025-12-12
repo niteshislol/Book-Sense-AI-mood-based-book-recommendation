@@ -1,6 +1,25 @@
 import { Book } from "../types";
 
-const API_URL = "http://localhost:5001";
+// Dynamically determine backend URL based on where frontend is loaded
+const getBaseUrl = () => {
+    if (typeof window !== 'undefined') {
+        return `http://${window.location.hostname}:5001`;
+    }
+    return "http://localhost:5001";
+};
+
+const API_URL = getBaseUrl();
+
+// Helper to generate a stable random price based on string hash
+const getPrice = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    // Map hash to price between $10 and $50
+    const price = 10 + Math.abs(hash % 41);
+    return price;
+};
 
 // Helper to map backend response to Book interface
 const mapBackendBook = (item: any, index: number): Book => ({
@@ -11,7 +30,8 @@ const mapBackendBook = (item: any, index: number): Book => ({
     coverUrl: item.image,
     rating: item.avg_rating || 0,
     genre: "Fiction", // Placeholder as dataset might not have genre
-    year: undefined // Not in backend response
+    year: undefined, // Not in backend response
+    price: getPrice(item.title)
 });
 
 export const getPopularBooks = async (): Promise<Book[]> => {

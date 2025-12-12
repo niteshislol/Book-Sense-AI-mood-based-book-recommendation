@@ -41,9 +41,25 @@ function App() {
 
     if (page !== 'home' && page !== 'recommendations') setPage('home');
 
-    const results = await searchBooks(query);
+    let results = await searchBooks(query);
+
+    // Fallback if no results
+    if (results.length === 0) {
+      setSearchSubtitle("No exact matches found. Asking gemini for recommendations from the wider world...");
+      try {
+        const { getFallbackRecommendations } = await import('./services/geminiService');
+        results = await getFallbackRecommendations(query);
+        setSearchSubtitle(results.length > 0
+          ? "We couldn't find exact matches in our library, but here are some AI-generated recommendations."
+          : "We couldn't find anything even with AI help. Try another term.");
+      } catch (err) {
+        console.error("Fallback failed", err);
+      }
+    } else {
+      setSearchSubtitle("Here is what we found for you.");
+    }
+
     setRecommendations(results);
-    setSearchSubtitle(results.length > 0 ? "Here is what we found for you." : "We couldn't find matches. Try another term.");
 
     // Scroll to results
     setTimeout(() => {
@@ -53,6 +69,33 @@ function App() {
       }
     }, 100);
   };
+
+  // Discover Page Logic
+  const [discoverBooks, setDiscoverBooks] = useState<Book[]>([]);
+  const [loadingDiscover, setLoadingDiscover] = useState(false);
+
+  useEffect(() => {
+    if (page === 'discover') {
+      const loadDiscover = async () => {
+        setLoadingDiscover(true);
+        try {
+          const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');
+          if (history.length === 0) {
+            setDiscoverBooks([]);
+          } else {
+            const { getPersonalizedRecommendations } = await import('./services/geminiService');
+            const results = await getPersonalizedRecommendations(history);
+            setDiscoverBooks(results);
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setLoadingDiscover(false);
+        }
+      };
+      loadDiscover();
+    }
+  }, [page]);
 
   const handleMoodResults = async (moodData?: MoodResult) => {
     setPage('home');
@@ -85,12 +128,39 @@ function App() {
         )}
 
         {page === 'discover' && (
-          <div className="pt-24 flex items-center justify-center min-h-screen">
-            <div className="text-center">
-              <h1 className="text-4xl font-poppins font-bold mb-4 dark:text-white text-gray-900">Discover</h1>
-              <p className="text-gray-500 dark:text-gray-400">Advanced filtering coming soon.</p>
-              <button onClick={() => setPage('home')} className="mt-4 text-[#6f57ff] hover:underline">Go back home</button>
+          <div className="pt-24 min-h-screen px-4 md:px-12 pb-12">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl font-poppins font-bold mb-4 dark:text-white text-gray-900">For You</h1>
+              <p className="text-gray-500 dark:text-gray-400">Recommendations based on your reading history.</p>
             </div>
+
+            {loadingDiscover ? (
+              <div className="flex flex-col items-center justify-center h-64">
+                <div className="w-12 h-12 border-4 border-[#6f57ff] border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-[#6f57ff] animate-pulse">Curating your personal list...</p>
+              </div>
+            ) : discoverBooks.length > 0 ? (
+              <BookGrid
+                title="Your Personal Picks"
+                subtitle="Based on what you've read recently."
+                books={discoverBooks}
+                onBookClick={setSelectedBook}
+              />
+            ) : (
+              <div className="text-center py-20 bg-gray-50 dark:bg-white/5 rounded-3xl border border-dashed border-gray-300 dark:border-white/10">
+                <div className="text-6xl mb-4">📚</div>
+                <h3 className="text-xl font-bold dark:text-white text-gray-900 mb-2">No history yet</h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
+                  Start reading books to get personalized recommendations here!
+                </p>
+                <button
+                  onClick={() => setPage('home')}
+                  className="bg-[#6f57ff] text-white px-6 py-2 rounded-full hover:bg-[#5da6ff] transition-colors"
+                >
+                  Browse Books
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -107,7 +177,7 @@ function App() {
         )}
 
         {page === 'top-books' && (
-          <TopBooks />
+          <TopBooks onBookClick={setSelectedBook} />
         )}
 
         {page === 'mood-ai' && (

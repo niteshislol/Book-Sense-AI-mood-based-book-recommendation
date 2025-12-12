@@ -7,6 +7,7 @@ export interface Book {
   rating: number;
   genre: string;
   year?: number;
+  price?: number; // Simulated price for sorting
 }
 
 export interface MoodResult {

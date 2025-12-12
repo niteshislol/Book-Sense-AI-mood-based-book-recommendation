@@ -53,7 +53,7 @@ export const MOCK_BOOKS: Book[] = [
     genre: 'Biography',
     year: 2018
   },
-   {
+  {
     id: '6',
     title: 'Dark Matter',
     author: 'Blake Crouch',
@@ -66,7 +66,7 @@ export const MOCK_BOOKS: Book[] = [
 ];
 
 export const MOOD_GENRE_MAP: MoodMapping = {
-  'Happy': ['Romance', 'Adventure', 'Fantasy', 'Comedy'],
+  'Happy': ['Comedy', 'Adventure', 'Fantasy', 'Fiction'],
   'Sad': ['Inspirational', 'Healing', 'Self-Help', 'Literary Fiction'],
   'Excited': ['Sci-Fi', 'Action', 'Fantasy', 'Thriller'],
   'Bored': ['Mystery', 'Thriller', 'Page-turner', 'Crime'],

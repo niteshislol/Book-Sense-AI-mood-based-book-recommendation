@@ -61,7 +61,8 @@ const MoodDetector: React.FC<MoodDetectorProps> = ({ onRecommendationFound }) =>
         const moodResult = await analyzeMoodAndRecommend(base64Image);
         onRecommendationFound(moodResult);
       } catch (e) {
-        alert("Failed to analyze mood.");
+        console.error("Mood detection error:", e);
+        alert(`Failed to analyze mood. Error: ${e instanceof Error ? e.message : String(e)}`);
       } finally {
         setIsScanning(false);
       }

@@ -4,7 +4,11 @@ import { MOCK_BOOKS } from '../constants';
 import BookCard from './BookCard';
 import { getPopularBooks } from '../services/api';
 
-const TopBooks: React.FC = () => {
+interface TopBooksProps {
+  onBookClick?: (book: Book) => void;
+}
+
+const TopBooks: React.FC<TopBooksProps> = ({ onBookClick }) => {
   const [trending, setTrending] = useState<Book[]>([]);
 
   useEffect(() => {
@@ -36,7 +40,7 @@ const TopBooks: React.FC = () => {
         <div className="flex overflow-x-auto gap-6 pb-8 snap-x hide-scrollbar">
           {MOCK_BOOKS.concat(MOCK_BOOKS).map((book, i) => (
             <div key={i} className="min-w-[280px] snap-center">
-              <BookCard book={{ ...book, id: `top-${i}` }} />
+              <BookCard book={{ ...book, id: `top-${i}` }} onClick={() => onBookClick && onBookClick(book)} />
             </div>
           ))}
         </div>
@@ -47,7 +51,7 @@ const TopBooks: React.FC = () => {
         <h2 className="text-3xl font-poppins font-bold text-gradient mb-8 inline-block">AI Trending Now</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {trending.map((book) => (
-            <BookCard key={book.id} book={book} />
+            <BookCard key={book.id} book={book} onClick={() => onBookClick && onBookClick(book)} />
           ))}
         </div>
       </section>
@@ -65,7 +69,7 @@ const TopBooks: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {MOCK_BOOKS.concat(MOCK_BOOKS).concat(MOCK_BOOKS).slice(0, 10).map((book, i) => (
             <div key={i} className="transform hover:-translate-y-2 transition-transform duration-300">
-              <BookCard book={{ ...book, id: `top50-${i}` }} compact />
+              <BookCard book={{ ...book, id: `top50-${i}` }} compact onClick={() => onBookClick && onBookClick(book)} />
             </div>
           ))}
         </div>

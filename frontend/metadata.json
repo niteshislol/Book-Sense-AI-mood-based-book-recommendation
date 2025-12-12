@@ -1,0 +1,7 @@
+{
+  "name": "BookSense AI",
+  "description": "A premium, AI-powered book recommendation engine featuring mood detection and deep content analysis.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

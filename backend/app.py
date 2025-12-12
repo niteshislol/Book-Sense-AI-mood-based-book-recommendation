@@ -85,5 +85,33 @@ def recommend_book():
 
     return jsonify(data)
 
+@app.route('/search')
+def search_books():
+    if books is None:
+         return jsonify({"error": "Models not loaded"}), 500
+    
+    query = request.args.get('q', '').lower()
+    if not query:
+        return jsonify([])
+
+    # Filter books by title or author
+    # books dataframe likely has 'Book-Title', 'Book-Author', 'Image-URL-M'
+    mask = books['Book-Title'].str.lower().str.contains(query) | books['Book-Author'].str.lower().str.contains(query)
+    results = books[mask].head(8) # Limit to 8 results
+
+    data = []
+    for i in range(results.shape[0]):
+        item = {
+            "title": results.iloc[i]['Book-Title'],
+            "author": results.iloc[i]['Book-Author'],
+            "image": results.iloc[i]['Image-URL-M'],
+            # Add these if available, otherwise default or skip
+            "avg_rating": 0, 
+            "num_ratings": 0
+        }
+        data.append(item)
+    
+    return jsonify(data)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

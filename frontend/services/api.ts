@@ -21,6 +21,17 @@ const getPrice = (str: string) => {
     return price;
 };
 
+// Helper to generate a stable random rating based on string hash
+const getRating = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    // Map hash to rating between 3.5 and 5.0
+    const rating = 3.5 + (Math.abs(hash) % 16) / 10;
+    return Math.min(5, Math.max(0, rating));
+};
+
 // Helper to map backend response to Book interface
 const mapBackendBook = (item: any, index: number): Book => ({
     id: `book-${index}-${Date.now()}`, // Generate unique ID
@@ -28,7 +39,7 @@ const mapBackendBook = (item: any, index: number): Book => ({
     author: item.author,
     description: "Description unavailable in local dataset.", // Placeholder
     coverUrl: item.image,
-    rating: item.avg_rating || 0,
+    rating: item.avg_rating || getRating(item.title),
     genre: "Fiction", // Placeholder as dataset might not have genre
     year: undefined, // Not in backend response
     price: getPrice(item.title)

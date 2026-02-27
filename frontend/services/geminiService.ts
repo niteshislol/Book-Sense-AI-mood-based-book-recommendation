@@ -3,7 +3,7 @@ import { MoodResult } from "../types";
 
 // Safely access the API key to prevent ReferenceError in browsers where 'process' is undefined
 // Using the user-provided API key directly to prevent environment variable issues
-const apiKey = "API KEY HERE";
+const apiKey = "AIzaSyAXiSrYwOk3tcMR-WRyZshp-1QjzM3gfMk";
 const ai = new GoogleGenAI({ apiKey });
 
 export const analyzeMoodAndRecommend = async (base64Image: string): Promise<MoodResult> => {
